@@ -58,21 +58,7 @@
         util.drawRect(0, 0, canvas.width, canvas.height, '#eeeeee');
 
         // let nowTime = (Date.now() - startTime) / 1000;
-    
-        if (viper.isComing === true) {
-            let justTime = Date.now();
-            let comingTime = (justTime - viper.comingStart) / 1000;
-            let y = CANVAS_HEIGHT - comingTime * 50;
-            if (y <= viper.comingEndPosition.y) {
-                viper.isComing = false;
-                y = CANVAS_HEIGHT - 100;
-            }
-            viper.position.set(viper.position.x, y);
-            if (justTime % 100 < 50) {
-                ctx.globalAlpha = 0.5;
-            }
-        }
-        viper.draw();
+        viper.update();
 
         requestAnimationFrame(render);
     }
