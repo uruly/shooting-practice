@@ -21,23 +21,10 @@
      */
     let startTime = null;
     /**
-     * 自機のX座標
-     * @type {number}
+     * 自機キャラクターのインスタンス
+     * @type {Viper}
      */
-    let viperX = CANVAS_WIDTH / 2
-    /**
-     * 自機のY座標
-     * @type {number}
-     */
-    let viperY = CANVAS_HEIGHT / 2
-    /**
-     * @type {boolean} - 自機が登場中かどうかを表すフラグ
-     */
-    let isComing = false;
-    /**
-     * @type {number} - 登場演出を開始した際のタイムスタンプ
-     */
-    let comingStart = null;
+    let viper = null;
 
     window.addEventListener('load', () => {
         util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
@@ -57,9 +44,13 @@
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
 
-        isComing = true;
-        comingStart = Date.now();
-        viperY = CANVAS_HEIGHT;
+        viper = new Viper(ctx, 0, 0, image);
+        viper.setComing(
+            CANVAS_WIDTH / 2,   // 登場開始x
+            CANVAS_HEIGHT,      // 登場開始y
+            CANVAS_WIDTH / 2,   // 登場終わりx
+            CANVAS_HEIGHT - 100 // 登場終わりy
+        )
     }
 
     function render() {
@@ -68,39 +59,39 @@
 
         // let nowTime = (Date.now() - startTime) / 1000;
     
-        if (isComing === true) {
+        if (viper.isComing === true) {
             let justTime = Date.now();
-            let comingTime = (justTime - comingStart) / 1000;
-            viperY = CANVAS_HEIGHT - comingTime * 50;
-            if (viperY <= CANVAS_HEIGHT - 100) {
-                isComing = false;
-                viperY = CANVAS_HEIGHT - 100;
+            let comingTime = (justTime - viper.comingStart) / 1000;
+            let y = CANVAS_HEIGHT - comingTime * 50;
+            if (y <= viper.comingEndPosition.y) {
+                viper.isComing = false;
+                y = CANVAS_HEIGHT - 100;
             }
-
+            viper.position.set(viper.position.x, y);
             if (justTime % 100 < 50) {
                 ctx.globalAlpha = 0.5;
             }
         }
-        ctx.drawImage(image, viperX, viperY);
+        viper.draw();
 
         requestAnimationFrame(render);
     }
 
     function eventSetting() {
         window.addEventListener('keydown', (event) => {
-            if (isComing === true) { return; }
+            if (viper.isComing === true) { return; }
             switch(event.key) {
                 case 'ArrowLeft':
-                    viperX -= 10;
+                    viper.position.x -= 10;
                     break;
                 case 'ArrowRight':
-                    viperX += 10;
+                    viper.position.x += 10;
                     break;
                 case 'ArrowUp':
-                    viperY -= 10;
+                    viper.position.y -= 10;
                     break;
                 case 'ArrowDown':
-                    viperY += 10;
+                    viper.position.y += 10;
                     break;
             }
         }, false);
