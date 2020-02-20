@@ -20,6 +20,16 @@
      * @type {number}
      */
     let startTime = null;
+    /**
+     * 自機のX座標
+     * @type {number}
+     */
+    let viperX = CANVAS_WIDTH / 2
+    /**
+     * 自機のY座標
+     * @type {number}
+     */
+    let viperY = CANVAS_HEIGHT / 2
 
     window.addEventListener('load', () => {
         util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
@@ -29,6 +39,7 @@
         util.imageLoader('./image/viper.png', (loadedImage) => {
             image = loadedImage;
             initialize();
+            eventSetting();
             startTime = Date.now();
             render();
         });
@@ -42,11 +53,27 @@
     function render() {
         util.drawRect(0, 0, canvas.width, canvas.height, '#eeeeee');
 
-        let nowTime = (Date.now() - startTime) / 1000;
-        let sin = Math.sin(nowTime);
-        let x = sin * 100.0;
-        ctx.drawImage(image, CANVAS_WIDTH / 2 + x, CANVAS_HEIGHT / 2);
+        ctx.drawImage(image, viperX, viperY);
 
         requestAnimationFrame(render);
+    }
+
+    function eventSetting() {
+        window.addEventListener('keydown', (event) => {
+            switch(event.key) {
+                case 'ArrowLeft':
+                    viperX -= 10;
+                    break;
+                case 'ArrowRight':
+                    viperX += 10;
+                    break;
+                case 'ArrowUp':
+                    viperY -= 10;
+                    break;
+                case 'ArrowDown':
+                    viperY += 10;
+                    break;
+            }
+        }, false);
     }
 })();
