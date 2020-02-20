@@ -27,6 +27,7 @@
     let canvas = null;
     let ctx = null;
     let shotArray = [];
+    let singleShotArray = [];
     /**
      * 自機キャラクターのインスタンス
      * @type {Viper}
@@ -55,14 +56,19 @@
     
         for (let i = 0; i < SHOT_MAX_COUNT; ++i) {
             shotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/viper_shot.png');
+            singleShotArray[i * 2] = new Shot(ctx, 0, 0, 32, 32, './image/viper_single_shot.png');
+            singleShotArray[i * 2 + 1] = new Shot(ctx, 0, 0, 32, 32, './image/viper_single_shot.png');
         }
-        viper.setShotArray(shotArray);
+        viper.setShotArray(shotArray, singleShotArray);
     }
 
     function loadCheck() {
         let ready = true;
         ready = ready && viper.ready;
         shotArray.map((v) => {
+            ready = ready && v.ready;
+        });
+        singleShotArray.map((v) => {
             ready = ready && v.ready;
         });
 
@@ -84,6 +90,9 @@
         viper.update();
     
         shotArray.map((v) => {
+            v.update();
+        });
+        singleShotArray.map((v) => {
             v.update();
         });
 
