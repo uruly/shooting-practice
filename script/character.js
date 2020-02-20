@@ -62,6 +62,14 @@ class Viper extends Character {
         this.comingStartPosition = null;
         this.comingEndPosition = null;
         this.shotArray = null;
+        /**
+         * @type {number} - ショットを打った後のチェック用カウンター
+         */
+        this.shotCheckCounter = 0;
+        /**
+         * @type {number} - ショットを打つことができる間隔
+         */
+        this.shotInterval = 10;
     }
 
     setComing(startX, startY, endX, endY) {
@@ -101,13 +109,17 @@ class Viper extends Character {
                 this.position.y += this.speed;
             }
             if (window.isKeyDown.key_z === true) {
-                for (let i = 0; i < this.shotArray.length; ++i) {
-                    if (this.shotArray[i].life <= 0) {
-                        this.shotArray[i].set(this.position.x, this.position.y);
-                        break;
+                if (this.shotCheckCounter >= 0) {
+                    for (let i = 0; i < this.shotArray.length; ++i) {
+                        if (this.shotArray[i].life <= 0) {
+                            this.shotArray[i].set(this.position.x, this.position.y);
+                            this.shotCheckCounter = -this.shotInterval;
+                            break;
+                        }
                     }
                 }
             }
+            ++this.shotCheckCounter;
             // 移動後の位置が画面外へ出ていないかを確認して修正する
             let canvasWidth = this.ctx.canvas.width;
             let canvasHeight = this.ctx.canvas.height;
