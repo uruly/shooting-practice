@@ -20,13 +20,19 @@ class Position {
  */
 class Character {
 
-    constructor(ctx, x, y, w, h, life, image) {
+    constructor(ctx, x, y, w, h, life, imagePath) {
         this.ctx = ctx;
         this.position = new Position(x, y);
         this.width = w;
         this.height = h;
         this.life = life;
-        this.image = image;
+
+        this.ready = false;
+        this.image = new Image();
+        this.image.addEventListener('load', () => {
+            this.ready = true;
+        }, false);
+        this.image.src = imagePath;
     }
 
     draw() {
@@ -38,7 +44,7 @@ class Character {
             this.position.y - offsetY,
             this.width,
             this.height
-        )
+        );
     }
 }
 
@@ -47,14 +53,15 @@ class Character {
  */
 class Viper extends Character {
 
-    constructor(ctx, x, y, w, h, image) {
-        super(ctx, x, y, w, h, 0, image);
+    constructor(ctx, x, y, w, h, imagePath) {
+        super(ctx, x, y, w, h, 0, imagePath);
 
         this.speed = 3;
         this.isComing = false;
         this.comingStart = null;
         this.comingStartPosition = null;
         this.comingEndPosition = null;
+        this.shotArray = null;
     }
 
     setComing(startX, startY, endX, endY) {
@@ -93,6 +100,14 @@ class Viper extends Character {
             if (window.isKeyDown.key_ArrowDown === true) {
                 this.position.y += this.speed;
             }
+            if (window.isKeyDown.key_z === true) {
+                for (let i = 0; i < this.shotArray.length; ++i) {
+                    if (this.shotArray[i].life <= 0) {
+                        this.shotArray[i].set(this.position.x, this.position.y);
+                        break;
+                    }
+                }
+            }
             // 移動後の位置が画面外へ出ていないかを確認して修正する
             let canvasWidth = this.ctx.canvas.width;
             let canvasHeight = this.ctx.canvas.height;
@@ -102,5 +117,39 @@ class Viper extends Character {
         }
         this.draw();
         this.ctx.globalAlpha = 1.0;
+    }
+
+    /**
+     * ショットを設定する
+     * @param {Array<Shot>} shotArray - 自身に設定するショットの配列
+     */
+    setShotArray(shotArray) {
+        this.shotArray = shotArray;
+    }
+}
+
+/**
+ * Shot クラス
+ */
+
+class Shot extends Character {
+
+    constructor(ctx, x, y, w, h, imagePath) {
+        super(ctx, x, y, w, h, 0, imagePath);
+        this.speed = 7;
+    }
+
+    set(x, y) {
+        this.position.set(x, y);
+        this.life = 1;
+    }
+
+    update() {
+        if (this.life <= 0) { return; }
+        if (this.position.y + this.height < 0) {
+            this.life = 0;
+        }
+        this.position.y -= this.speed;
+        this.draw();
     }
 }
