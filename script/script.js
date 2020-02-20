@@ -22,12 +22,18 @@
      * @type {number}
      */
     const SHOT_MAX_COUNT = 10;
+    /**
+     * 敵キャラクターのインスタンス数
+     * @type {number}
+     */
+    const ENEMY_MAX_COUNT = 10;
 
     let util = null;
     let canvas = null;
     let ctx = null;
     let shotArray = [];
     let singleShotArray = [];
+    let enemyArray = [];
     /**
      * 自機キャラクターのインスタンス
      * @type {Viper}
@@ -43,6 +49,7 @@
     });
 
     function initialize() {
+        let i;
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
 
@@ -54,12 +61,18 @@
             CANVAS_HEIGHT - 100 // 登場終わりy
         )
     
-        for (let i = 0; i < SHOT_MAX_COUNT; ++i) {
+        // ショットを作成
+        for (i = 0; i < SHOT_MAX_COUNT; ++i) {
             shotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/viper_shot.png');
             singleShotArray[i * 2] = new Shot(ctx, 0, 0, 32, 32, './image/viper_single_shot.png');
             singleShotArray[i * 2 + 1] = new Shot(ctx, 0, 0, 32, 32, './image/viper_single_shot.png');
         }
         viper.setShotArray(shotArray, singleShotArray);
+
+        // 敵キャラクターを初期化
+        for (i = 0; i < ENEMY_MAX_COUNT; ++i) {
+            enemyArray[i] = new Enemy(ctx, 0, 0, 48, 48, './image/enemy_small.png');
+        }
     }
 
     function loadCheck() {
@@ -71,6 +84,9 @@
         singleShotArray.map((v) => {
             ready = ready && v.ready;
         });
+        enemyArray.map((v) => {
+            ready = ready && v.ready;
+        })
 
         // console.log('koko', ready);
         if (ready === true) {
@@ -95,6 +111,10 @@
         singleShotArray.map((v) => {
             v.update();
         });
+
+        enemyArray.map((v) => {
+            v.update();
+        })
 
         requestAnimationFrame(render);
     }
