@@ -204,6 +204,12 @@ class Shot extends Character {
         this.life = 1;
     }
 
+    setSpeed(speed) {
+        if (speed != null && speed > 0) {
+            this.speed = speed;
+        }
+    }
+
     update() {
         if (this.life <= 0) { return; }
         if (this.position.y + this.height < 0) {
@@ -222,23 +228,52 @@ class Enemy extends Character {
 
     constructor(ctx, x, y, w, h, imagePath) {
         super(ctx, x, y, w, h, 0, imagePath);
+        this.type = 'default';
+        this.frame = 0;
         this.speed = 3;
+        this.shotArray = null;
     }
 
-    set(x, y, life = 1) {
+    set(x, y, life = 1, type = 'default') {
         this.position.set(x, y);
         this.life = life;
+        this.type = type;
+        this.frame = 0;
     }
 
     update() {
         if (this.life <= 0) { return; }
-        // 画面末端へ移動していたら死ぬ
-        if (this.position.y - this.height > this.ctx.canvas.height) {
-            this.life = 0;
+        
+        switch(this.type) {
+            case 'default':
+            default:
+                if (this.frame === 50) {
+                    this.fire();
+                }
+                this.position.x += this.vector.x * this.speed;
+                this.position.y += this.vector.y * this.speed;
+                if (this.position.y - this.height > this.ctx.canvas.height) {
+                    this.life = 0;
+                }
+                break;
         }
-        this.position.x += this.vector.x * this.speed;
-        this.position.y += this.vector.y * this.speed;
 
         this.draw();
+        ++this.frame;
+    }
+
+    fire(x = 0.0, y = 1.0) {
+        for (let i = 0; i < this.shotArray.length; ++i) {
+            if (this.shotArray[i].life <= 0) {
+                this.shotArray[i].set(this.position.x, this.position.y);
+                this.shotArray[i].setSpeed(5.0);
+                this.shotArray[i].setVector(x, y);
+                break;
+            }
+        }
+    }
+
+    setShotArray(shotArray) {
+        this.shotArray = shotArray;
     }
 }
