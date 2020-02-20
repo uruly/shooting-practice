@@ -20,18 +20,24 @@ class Position {
  */
 class Character {
 
-    constructor(ctx, x, y, life, image) {
+    constructor(ctx, x, y, w, h, life, image) {
         this.ctx = ctx;
         this.position = new Position(x, y);
+        this.width = w;
+        this.height = h;
         this.life = life;
         this.image = image;
     }
 
     draw() {
+        let offsetX = this.width / 2;
+        let offsetY = this.height / 2;
         this.ctx.drawImage(
             this.image,
-            this.position.x,
-            this.position.y
+            this.position.x - offsetX,
+            this.position.y - offsetY,
+            this.width,
+            this.height
         )
     }
 }
@@ -41,9 +47,10 @@ class Character {
  */
 class Viper extends Character {
 
-    constructor(ctx, x, y, image) {
-        super(ctx, x, y, 0, image);
+    constructor(ctx, x, y, w, h, image) {
+        super(ctx, x, y, w, h, 0, image);
 
+        this.speed = 3;
         this.isComing = false;
         this.comingStart = null;
         this.comingStartPosition = null;
@@ -73,6 +80,25 @@ class Viper extends Character {
             if (justTime % 100 < 50) {
                 this.ctx.globalAlpha = 0.5;
             }
+        } else {
+            if (window.isKeyDown.key_ArrowLeft === true) {
+                this.position.x -= this.speed;
+            }
+            if (window.isKeyDown.key_ArrowRight === true) {
+                this.position.x += this.speed;
+            }
+            if (window.isKeyDown.key_ArrowUp === true) {
+                this.position.y -= this.speed;
+            }
+            if (window.isKeyDown.key_ArrowDown === true) {
+                this.position.y += this.speed;
+            }
+            // 移動後の位置が画面外へ出ていないかを確認して修正する
+            let canvasWidth = this.ctx.canvas.width;
+            let canvasHeight = this.ctx.canvas.height;
+            let tx = Math.min(Math.max(this.position.x, 0), canvasWidth);
+            let ty = Math.min(Math.max(this.position.y, 0), canvasHeight);
+            this.position.set(tx, ty);
         }
         this.draw();
         this.ctx.globalAlpha = 1.0;

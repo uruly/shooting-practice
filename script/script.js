@@ -1,5 +1,13 @@
 (() => { 
     /**
+     * キーの押下状態を調べるためのオブジェクト
+     * このオブジェクトはプロジェクトのどこからでも参照できるように
+     * window オブジェクトのカスタムプロパティとして設定する
+     * @global
+     * @type {object}
+     */
+    window.isKeyDown = {};
+    /**
      * canvasの幅
      * @type {number}
      */
@@ -44,10 +52,10 @@
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
 
-        viper = new Viper(ctx, 0, 0, image);
+        viper = new Viper(ctx, 0, 0, 64, 64, image);
         viper.setComing(
             CANVAS_WIDTH / 2,   // 登場開始x
-            CANVAS_HEIGHT,      // 登場開始y
+            CANVAS_HEIGHT + 50,      // 登場開始y
             CANVAS_WIDTH / 2,   // 登場終わりx
             CANVAS_HEIGHT - 100 // 登場終わりy
         )
@@ -65,21 +73,10 @@
 
     function eventSetting() {
         window.addEventListener('keydown', (event) => {
-            if (viper.isComing === true) { return; }
-            switch(event.key) {
-                case 'ArrowLeft':
-                    viper.position.x -= 10;
-                    break;
-                case 'ArrowRight':
-                    viper.position.x += 10;
-                    break;
-                case 'ArrowUp':
-                    viper.position.y -= 10;
-                    break;
-                case 'ArrowDown':
-                    viper.position.y += 10;
-                    break;
-            }
+            isKeyDown[`key_${event.key}`] = true;
+        }, false);
+        window.addEventListener('keyup', (event) => {
+            isKeyDown[`key_${event.key}`] = false;
         }, false);
     }
 })();
