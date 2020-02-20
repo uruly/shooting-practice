@@ -26,6 +26,8 @@ class Character {
         this.width = w;
         this.height = h;
         this.life = life;
+        this.vector = new Position(0.0, -1.0);
+        this.angle = 270 * Math.PI / 180;
 
         this.ready = false;
         this.image = new Image();
@@ -45,6 +47,30 @@ class Character {
             this.width,
             this.height
         );
+    }
+
+    setVectorFromAngle(angle) {
+        this.angle = angle;
+        let sin = Math.sin(angle);
+        let cos = Math.cos(angle);
+        this.vector.set(cos, sin);
+    }
+
+    rotationDraw() {
+        this.ctx.save();
+        this.ctx.translate(this.position.x, this.position.y);
+        this.ctx.rotate(this.angle - Math.PI * 1.5);
+
+        let offsetX = this.width / 2;
+        let offsetY = this.height / 2;
+        this.ctx.drawImage(
+            this.image,
+            -offsetX,   // translateで平行移動しているのでオフセットのみ
+            -offsetY,   // translateで平行移動しているのでオフセットのみ
+            this.width,
+            this.height
+        );
+        this.ctx.restore();
     }
 }
 
@@ -122,10 +148,13 @@ class Viper extends Character {
                     // シングルショット 2つでワンセット
                     for (i = 0; i < this.singleShotArray.length; i += 2) {
                         if (this.singleShotArray[i].life <= 0 && this.singleShotArray[i + 1].life <= 0) {
+                            // 真上の方向（270度)から左右に10ど傾いたラジアン
+                            let radCW = 280 * Math.PI / 180;
+                            let radCCW = 260 * Math.PI / 180;
                             this.singleShotArray[i].set(this.position.x, this.position.y);
-                            this.singleShotArray[i].setVector(0.2, -0.9);
+                            this.singleShotArray[i].setVectorFromAngle(radCW);
                             this.singleShotArray[i + 1].set(this.position.x, this.position.y);
-                            this.singleShotArray[i + 1].setVector(-0.2, -0.9);
+                            this.singleShotArray[i + 1].setVectorFromAngle(radCCW);
                             this.shotCheckCounter = -this.shotInterval;
                             break;
                         }
@@ -164,21 +193,11 @@ class Shot extends Character {
     constructor(ctx, x, y, w, h, imagePath) {
         super(ctx, x, y, w, h, 0, imagePath);
         this.speed = 7;
-        this.vector = new Position(0.0, -1.0);
     }
 
     set(x, y) {
         this.position.set(x, y);
         this.life = 1;
-    }
-
-    /**
-     * ショットの進行方向を設定する
-     * @param {number} x - X方向の移動量
-     * @param {number} y - Y方向の移動量
-     */
-    setVector(x, y) {
-        this.vector.set(x, y);
     }
 
     update() {
@@ -188,6 +207,6 @@ class Shot extends Character {
         }
         this.position.x += this.vector.x * this.speed;
         this.position.y += this.vector.y * this.speed;
-        this.draw();
+        this.rotationDraw();
     }
 }
