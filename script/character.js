@@ -49,6 +49,10 @@ class Character {
         );
     }
 
+    setVector(x, y){
+        this.vector.set(x, y);
+    }
+
     setVectorFromAngle(angle) {
         this.angle = angle;
         let sin = Math.sin(angle);

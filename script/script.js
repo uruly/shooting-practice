@@ -31,6 +31,7 @@
     let util = null;
     let canvas = null;
     let ctx = null;
+    let scene = null;
     let shotArray = [];
     let singleShotArray = [];
     let enemyArray = [];
@@ -52,6 +53,7 @@
         let i;
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
+        scene = new SceneManager();
 
         viper = new Viper(ctx, 0, 0, 64, 64, './image/viper.png');
         viper.setComing(
@@ -91,6 +93,7 @@
         // console.log('koko', ready);
         if (ready === true) {
             eventSetting();
+            sceneSetting();
             startTime = Date.now();
             render();
         } else {
@@ -115,6 +118,7 @@
         enemyArray.map((v) => {
             v.update();
         })
+        scene.update();
 
         requestAnimationFrame(render);
     }
@@ -126,5 +130,28 @@
         window.addEventListener('keyup', (event) => {
             isKeyDown[`key_${event.key}`] = false;
         }, false);
+    }
+
+    function sceneSetting() {
+        // イントロ
+        scene.add('intro', (time) => {
+            if (time > 2.0) {
+                scene.use('invade');
+            }
+        });
+
+        // invadeシーン
+        scene.add('invade', (time) => {
+            if (scene.frame !== 0 ) { return; }
+            for (let i = 0; i < ENEMY_MAX_COUNT; ++i) {
+                if (enemyArray[i].life <= 0) {
+                    let e = enemyArray[i];
+                    e.set(CANVAS_WIDTH / 2, -e.height);
+                    e.setVector(0.0, 1.0);
+                    break;
+                }
+            }
+        });
+        scene.use('intro');
     }
 })();
