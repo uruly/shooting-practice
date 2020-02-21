@@ -39,7 +39,8 @@ class Explosion {
         this.ctx.fillStyle = this.color;
         this.ctx.globalAlpha = 0.5;
         let time = (Date.now() - this.startTime) / 1000;
-        let progress = Math.min(time / this.timeRange, 1.0);
+        let ease = simpleEaseIn(1.0 - Math.min(time / this.timeRange, 1.0));
+        let progress = 1.0 - ease;
     
         for (let i = 0; i < this.firePosition.length; ++i) {
             let distance = this.radius * progress;
@@ -58,4 +59,8 @@ class Explosion {
             this.life = false;
         }
     }
+}
+
+function simpleEaseIn(t) {
+    return t * t * t * t;
 }
