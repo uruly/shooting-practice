@@ -99,16 +99,14 @@
         button.addEventListener('click', () => {
             button.diabled = true;
             sound = new Sound();
-            initialize();
-            loadCheck();
-            // sound.load('./sound/explosion.mp3', (error) => {
-            //     if (error != null) {
-            //         // alert('ファイルの読み込みエラーです');
-            //         // return;
-            //     }
-            //     initialize();
-            //     loadCheck();
-            // });
+            sound.load('./sound/explosion.mp3', (error) => {
+                if (error != null) {
+                    alert('ファイルの読み込みエラーです');
+                    return;
+                }
+                initialize();
+                loadCheck();
+            });
         });
     });
 
