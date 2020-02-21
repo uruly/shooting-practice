@@ -13,6 +13,16 @@ class Position {
         if (x != null) { this.x = x; }
         if (y != null) { this.y = y; }
     }
+
+    /**
+     * 対象のPositionクラスのインタンスとの距離を返す
+     * @param {Position} target - 距離を測る対象
+     */
+    distance(target) {
+        let x = this.x - target.x;
+        let y = this.y - target.y;
+        return Math.sqrt(x * x + y * y);
+    }
 }
 
 /**
@@ -145,6 +155,7 @@ class Viper extends Character {
                     for (i = 0; i < this.shotArray.length; ++i) {
                         if (this.shotArray[i].life <= 0) {
                             this.shotArray[i].set(this.position.x, this.position.y);
+                            this.shotArray[i].setPower(2);
                             this.shotCheckCounter = -this.shotInterval;
                             break;
                         }
@@ -197,6 +208,12 @@ class Shot extends Character {
     constructor(ctx, x, y, w, h, imagePath) {
         super(ctx, x, y, w, h, 0, imagePath);
         this.speed = 7;
+        this.power = 1;
+        /**
+         * 自身と衝突判定を取る対象を格納する
+         * @type {Array<Character>}
+         */
+        this.targetArray = [];
     }
 
     set(x, y) {
@@ -210,13 +227,38 @@ class Shot extends Character {
         }
     }
 
+    setPower(power) {
+        if (power != null && power > 0) {
+            this.power = power;
+        }
+    }
+
+    /**
+     * 
+     * @param {Array<Character>} [targets] - 衝突判定の対象を含む配列
+     */
+    setTargets(targets) {
+        if (targets != null && Array.isArray(targets) === true && targets.length > 0) {
+            this.targetArray = targets;
+        }
+    }
+
     update() {
         if (this.life <= 0) { return; }
-        if (this.position.y + this.height < 0) {
+        if (this.position.y + this.height < 0 || this.position.y - this.height > this.ctx.canvas.height) {
             this.life = 0;
         }
         this.position.x += this.vector.x * this.speed;
         this.position.y += this.vector.y * this.speed;
+    
+        this.targetArray.map((v) => {
+            if (this.life <= 0 || v.life <= 0) { return; }
+            let dist = this.position.distance(v.position);
+            if (dist <= (this.width + v.width) / 4) {
+                v.life -= this.power;
+                this.life = 0;
+            }
+        });
         this.rotationDraw();
     }
 }
