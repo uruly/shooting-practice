@@ -126,7 +126,7 @@
     
         // 爆発エフェクトの初期化
         for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
-            explosionArray[i] = new Explosion(ctx, 50.0, 15, 35.0, 0.8);
+            explosionArray[i] = new Explosion(ctx, 100.0, 15, 40.0, 1.0);
             explosionArray[i].setSound(sound);
         }
     
