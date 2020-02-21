@@ -23,6 +23,28 @@ class Position {
         let y = this.y - target.y;
         return Math.sqrt(x * x + y * y);
     }
+
+    /**
+     * ベクトルの長さを返す静的メソッド
+     * @static
+     * @param {number} x - X要素
+     * @param {number} y - Y要素
+     */
+    static calcLength(x, y) {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * ベクトルを単位化した結果を返す静的メソッド
+     * @static
+     * @param {number} x - X要素
+     * @param {number} y - Y要素
+     */
+    static calcNormal(x, y) {
+        let len = Position.calcLength(x, y);
+        return new Position(x / len, y / len);
+    }
+
 }
 
 /**
@@ -253,7 +275,13 @@ class Shot extends Character {
 
     update() {
         if (this.life <= 0) { return; }
-        if (this.position.y + this.height < 0 || this.position.y - this.height > this.ctx.canvas.height) {
+        // 画面外へ移動していたらライフを0にする
+        if (
+            this.position.x + this.width < 0 ||
+            this.position.x - this.width > this.ctx.canvas.width ||
+            this.position.y + this.height < 0 || 
+            this.position.y - this.height > this.ctx.canvas.height
+        ) {
             this.life = 0;
         }
         this.position.x += this.vector.x * this.speed;
@@ -266,10 +294,6 @@ class Shot extends Character {
                 if (v instanceof Viper === true) {
                     if (v.isComing === true) { return; }
                 }
-                if (v instanceof Enemy === true) {
-                    // 最大スコアを99999で制限
-                    gameScore = Math.min(gameScore + 100, 99999);
-                }
                 v.life -= this.power;
                 if (v.life <= 0) {
                     for (let i = 0; i < this.explosionArray.length; ++i) {
@@ -277,6 +301,14 @@ class Shot extends Character {
                             this.explosionArray[i].set(v.position.x, v.position.y);
                             break;
                         }
+                    }
+                    if (v instanceof Enemy === true) {
+                        // 最大スコアを99999で制限
+                        let score = 100;
+                        if (v.type === 'large') {
+                            score = 1000;
+                        }
+                        gameScore = Math.min(gameScore + score, 99999);
                     }
                 }
                 this.life = 0;
@@ -297,6 +329,7 @@ class Enemy extends Character {
         this.frame = 0;
         this.speed = 3;
         this.shotArray = null;
+        this.attackTarget = null;
     }
 
     set(x, y, life = 1, type = 'default') {
@@ -306,13 +339,47 @@ class Enemy extends Character {
         this.frame = 0;
     }
 
+    setAttackTarget(target) {
+        this.attackTarget = target;
+    }
+
     update() {
         if (this.life <= 0) { return; }
         
         switch(this.type) {
+            case 'wave':
+                if (this.frame % 60 === 0) {
+                    // 自機狙い
+                    let tx = this.attackTarget.position.x - this.position.x;
+                    let ty = this.attackTarget.position.y - this.position.y;
+                    let tv = Position.calcNormal(tx, ty);
+                    this.fire(tv.x, tv.y, 4.0);
+                }
+                this.position.x += Math.sin(this.frame / 10);
+                this.position.y += 2.0;
+                if (this.position.y - this.height > this.ctx.canvas.height) {
+                    this.life = 0;
+                }
+                break;
+            case 'large':
+                if (this.frame % 50 === 0) {
+                    // 45度ごとにオフセットした全方位弾を放つ
+                    for (let i = 0; i < 360; i += 45) {
+                        let r = i * Math.PI / 180;
+                        let sin = Math.sin(r);
+                        let cos = Math.cos(r);
+                        this.fire(cos, sin, 3.0);
+                    }
+                }
+                this.position.x += Math.sin((this.frame + 90) / 50) * 2.0;
+                this.position.y += 1.0;
+                if (this.position.y - this.height > this.ctx.canvas.height) {
+                    this.life = 0;
+                }
+                break;
             case 'default':
             default:
-                if (this.frame === 50) {
+                if (this.frame === 100) {
                     this.fire();
                 }
                 this.position.x += this.vector.x * this.speed;
@@ -327,11 +394,11 @@ class Enemy extends Character {
         ++this.frame;
     }
 
-    fire(x = 0.0, y = 1.0) {
+    fire(x = 0.0, y = 1.0, speed = 5.0) {
         for (let i = 0; i < this.shotArray.length; ++i) {
             if (this.shotArray[i].life <= 0) {
                 this.shotArray[i].set(this.position.x, this.position.y);
-                this.shotArray[i].setSpeed(5.0);
+                this.shotArray[i].setSpeed(speed);
                 this.shotArray[i].setVector(x, y);
                 break;
             }
