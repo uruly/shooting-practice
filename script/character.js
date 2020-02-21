@@ -266,6 +266,10 @@ class Shot extends Character {
                 if (v instanceof Viper === true) {
                     if (v.isComing === true) { return; }
                 }
+                if (v instanceof Enemy === true) {
+                    // 最大スコアを99999で制限
+                    gameScore = Math.min(gameScore + 100, 99999);
+                }
                 v.life -= this.power;
                 if (v.life <= 0) {
                     for (let i = 0; i < this.explosionArray.length; ++i) {

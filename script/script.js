@@ -8,6 +8,12 @@
      */
     window.isKeyDown = {};
     /**
+     * スコアを格納する
+     * @global
+     * @type {number}
+     */
+    window.gameScore = 0;
+    /**
      * canvasの幅
      * @type {number}
      */
@@ -146,6 +152,9 @@
     function render() {
         ctx.globalAlpha = 1.0;
         util.drawRect(0, 0, canvas.width, canvas.height, '#eeeeee');
+        // スコアの表示
+        ctx.font = 'bold 24px monospace';
+        util.drawText(zeroPadding(gameScore, 5), 30, 50, '#111111');
 
         // let nowTime = (Date.now() - startTime) / 1000;
         viper.update();
@@ -225,6 +234,7 @@
             util.drawText('GAME OVER', x, CANVAS_HEIGHT / 2, '#ff0000', textWidth);
             if (restart === true) {
                 restart = false;
+                gameScore = 0;
 
                 viper.setComing(
                     CANVAS_WIDTH / 2,
@@ -236,5 +246,16 @@
             }
         });
         scene.use('intro');
+    }
+
+    /**
+     * 数値の不足した桁数をゼロで埋めた文字列を返す
+     * @param {number} number - 数値
+     * @param {number} count - 桁数 （2桁以上）
+     */
+    function zeroPadding(number, count) {
+        let zeroArray = new Array(count);
+        let zeroString = zeroArray.join('0') + number;
+        return zeroString.slice(-count);
     }
 })();
