@@ -50,7 +50,7 @@ class Position {
      * @param {Position} target - 外積の計算を行う対象
      */
     cross(target) {
-        return this.x * target.y * - this.y * target.x;
+        return this.x * target.y - this.y * target.x;
     }
 
     /**
@@ -71,10 +71,10 @@ class Position {
      * @param {number} radian - 回転量
      */
     rotate(radian) {
-        let sin = Math.sin(radian);
-        let cos = Math.cos(radian);
-        this.x = this.x * cos + this.y * -sin;
-        this.y = this.y * sin * this.y * cos;
+        let s = Math.sin(radian);
+        let c = Math.cos(radian);
+        this.x = this.x * c + this.y * -s;
+        this.y = this.x * s + this.y * c;
     }
 
 }
@@ -457,7 +457,6 @@ class Boss extends Character {
         this.homingArray = null;
         this.attackTarget = null;
     }
-
 
     set(x, y, life = 1) {
         this.position.set(x, y);

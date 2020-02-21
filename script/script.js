@@ -228,7 +228,7 @@
         util.drawRect(0, 0, canvas.width, canvas.height, '#111122');
         // スコアの表示
         ctx.font = 'bold 24px monospace';
-        util.drawText(zeroPadding(gameScore, 5), 30, 50, '#111111');
+        util.drawText(zeroPadding(gameScore, 5), 30, 50, '#ffffff');
 
         // let nowTime = (Date.now() - startTime) / 1000;
         viper.update();
