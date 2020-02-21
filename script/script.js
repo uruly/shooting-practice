@@ -84,15 +84,26 @@
     window.addEventListener('load', () => {
         util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
         canvas = util.canvas;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
         ctx = util.context;
-        initialize();
-        loadCheck();
+        let button = document.body.querySelector('#start_button');
+        button.addEventListener('click', () => {
+            button.diabled = true;
+            sound = new Sound();
+            sound.load('./sound/explosion.mp3', (error) => {
+                if (error != null) {
+                    alert('ファイルの読み込みエラーです');
+                    return;
+                }
+                initialize();
+                loadCheck();
+            })
+        });
     });
 
     function initialize() {
         let i;
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
         scene = new SceneManager();
 
         viper = new Viper(ctx, 0, 0, 64, 64, './image/viper.png');
