@@ -17,6 +17,7 @@ class Explosion {
         this.fireVector = [];
         this.fireBaseSize = size;
         this.fireSize = [];
+        this.sound = null;
     }
 
     set(x, y) {
@@ -32,6 +33,10 @@ class Explosion {
         }
         this.life = true;
         this.startTime = Date.now();
+
+        if (this.sound != null) {
+            this.sound.play();
+        }
     }
 
     update() {
@@ -58,6 +63,10 @@ class Explosion {
         if (progress >= 1.0) {
             this.life = false;
         }
+    }
+
+    setSound(sound){
+        this.sound = sound;
     }
 }
 
