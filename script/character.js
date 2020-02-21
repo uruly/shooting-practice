@@ -94,7 +94,7 @@ class Character {
 class Viper extends Character {
 
     constructor(ctx, x, y, w, h, imagePath) {
-        super(ctx, x, y, w, h, 0, imagePath);
+        super(ctx, x, y, w, h, 1, imagePath);
 
         this.speed = 3;
         this.isComing = false;
@@ -116,12 +116,14 @@ class Viper extends Character {
     setComing(startX, startY, endX, endY) {
         this.isComing = true;
         this.comingStart = Date.now();
+        this.life = 1;
         this.position.set(startX, startY);
         this.comingStartPosition = new Position(startX, startY);
         this.comingEndPosition = new Position(endX, endY);
     }
 
     update() {
+        if (this.life <= 0) { return; }
         let justTime = Date.now();
 
         if (this.isComing === true) {
@@ -261,6 +263,9 @@ class Shot extends Character {
             if (this.life <= 0 || v.life <= 0) { return; }
             let dist = this.position.distance(v.position);
             if (dist <= (this.width + v.width) / 4) {
+                if (v instanceof Viper === true) {
+                    if (v.isComing === true) { return; }
+                }
                 v.life -= this.power;
                 if (v.life <= 0) {
                     for (let i = 0; i < this.explosionArray.length; ++i) {

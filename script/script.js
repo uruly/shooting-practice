@@ -48,6 +48,11 @@
     let enemyShotArray = [];
     let explosionArray = [];
     /**
+     * 再スタートするためのフラグ
+     * @type {boolean}
+     */
+    let restart = false;
+    /**
      * 自機キャラクターのインスタンス
      * @type {Viper}
      */
@@ -75,6 +80,11 @@
             CANVAS_HEIGHT - 100 // 登場終わりy
         )
     
+        // 爆発エフェクトの初期化
+        for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
+            explosionArray[i] = new Explosion(ctx, 50.0, 15, 30.0, 0.25);
+        }
+    
         // ショットを作成
         for (i = 0; i < SHOT_MAX_COUNT; ++i) {
             shotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/viper_shot.png');
@@ -85,15 +95,13 @@
 
         for (i = 0; i < ENEMY_SHOT_MAX_COUNT; ++i) {
             enemyShotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/enemy_shot.png');
+            enemyShotArray[i].setTargets([viper]);
+            enemyShotArray[i].setExplosions(explosionArray);
         }
         // 敵キャラクターを初期化
         for (i = 0; i < ENEMY_MAX_COUNT; ++i) {
             enemyArray[i] = new Enemy(ctx, 0, 0, 48, 48, './image/enemy_small.png');
             enemyArray[i].setShotArray(enemyShotArray);
-        }
-        // 爆発エフェクトの初期化
-        for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
-            explosionArray[i] = new Explosion(ctx, 50.0, 15, 30.0, 0.25);
         }
 
         // 衝突判定を行うために対象を設定する
@@ -169,6 +177,11 @@
     function eventSetting() {
         window.addEventListener('keydown', (event) => {
             isKeyDown[`key_${event.key}`] = true;
+            if (event.key === 'Enter') {
+                if (viper.life <= 0) {
+                    restart = true;
+                }
+            }
         }, false);
         window.addEventListener('keyup', (event) => {
             isKeyDown[`key_${event.key}`] = false;
@@ -197,6 +210,29 @@
             }
             if (scene.frame === 100) {
                 scene.use('invade');
+            }
+            if (viper.life <= 0) {
+                scene.use('gameover');
+            }
+        });
+
+        // ゲームオーバーシーン
+        scene.add('gameover', (time) => {
+            let textWidth = CANVAS_WIDTH / 2;
+            let loopWidth = CANVAS_WIDTH + textWidth;
+            let x = CANVAS_WIDTH - (scene.frame * 2) % loopWidth;
+            ctx.font = 'bold 72px sans-serif';
+            util.drawText('GAME OVER', x, CANVAS_HEIGHT / 2, '#ff0000', textWidth);
+            if (restart === true) {
+                restart = false;
+
+                viper.setComing(
+                    CANVAS_WIDTH / 2,
+                    CANVAS_HEIGHT + 50,
+                    CANVAS_WIDTH / 2,
+                    CANVAS_HEIGHT - 100
+                );
+                scene.use('intro');
             }
         });
         scene.use('intro');
