@@ -29,8 +29,14 @@
     const ENEMY_MAX_COUNT = 10;
     /**
      * 敵キャラクターのショットの最大個数
+     * @type {number}
      */
     const ENEMY_SHOT_MAX_COUNT = 50;
+    /**
+     * 爆発エフェクトの最大個数
+     * @type {number}
+     */
+    const EXPLOSION_MAX_COUNT = 10;
 
     let util = null;
     let canvas = null;
@@ -40,6 +46,7 @@
     let singleShotArray = [];
     let enemyArray = [];
     let enemyShotArray = [];
+    let explosionArray = [];
     /**
      * 自機キャラクターのインスタンス
      * @type {Viper}
@@ -84,13 +91,21 @@
             enemyArray[i] = new Enemy(ctx, 0, 0, 48, 48, './image/enemy_small.png');
             enemyArray[i].setShotArray(enemyShotArray);
         }
+        // 爆発エフェクトの初期化
+        for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
+            explosionArray[i] = new Explosion(ctx, 50.0, 15, 30.0, 0.25);
+        }
 
         // 衝突判定を行うために対象を設定する
         for (i = 0; i < SHOT_MAX_COUNT; ++i) {
             shotArray[i].setTargets(enemyArray);
             singleShotArray[i * 2].setTargets(enemyArray);
             singleShotArray[i * 2 + 1].setTargets(enemyArray);
+            shotArray[i].setExplosions(explosionArray);
+            singleShotArray[i * 2].setExplosions(explosionArray);
+            singleShotArray[i * 2 + 1].setExplosions(explosionArray);
         }
+
     }
 
     function loadCheck() {
@@ -139,6 +154,10 @@
         });
 
         enemyShotArray.map((v) => {
+            v.update();
+        });
+
+        explosionArray.map((v) => {
             v.update();
         });
 

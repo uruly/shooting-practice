@@ -243,6 +243,12 @@ class Shot extends Character {
         }
     }
 
+    setExplosions(targets) {
+        if (targets != null && Array.isArray(targets) === true && targets.length > 0) {
+            this.explosionArray = targets;
+        }
+    }
+
     update() {
         if (this.life <= 0) { return; }
         if (this.position.y + this.height < 0 || this.position.y - this.height > this.ctx.canvas.height) {
@@ -256,6 +262,14 @@ class Shot extends Character {
             let dist = this.position.distance(v.position);
             if (dist <= (this.width + v.width) / 4) {
                 v.life -= this.power;
+                if (v.life <= 0) {
+                    for (let i = 0; i < this.explosionArray.length; ++i) {
+                        if (this.explosionArray[i].life !== true) {
+                            this.explosionArray[i].set(v.position.x, v.position.y);
+                            break;
+                        }
+                    }
+                }
                 this.life = 0;
             }
         });
